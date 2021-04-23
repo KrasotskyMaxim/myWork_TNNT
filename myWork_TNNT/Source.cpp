@@ -4,8 +4,22 @@
 #include <fstream>
 using namespace std;
 
-bool graph[100][100];
+bool graph[10][10];
+int nodes = 0, bridges = 0;
+vector<int> vecNodes;
 
+void graphClear() {
+    for (auto i = 0; i < nodes; i++)
+    {
+        for (auto j = 0; j < nodes; j++)
+        {
+            graph[i][j] = false;
+        }
+    }
+    nodes = 0;
+    bridges = 0;
+    vecNodes.clear();
+}
 
 bool dfs(int i, vector<bool>& col, int nodes) {
     if (col[i]) {
@@ -41,6 +55,7 @@ bool isTree(int nodes, vector<int>& vecNodes, int bridges) {
         tr = false;
     }
     dfs(begin, col, nodes);
+    begin = 0;
 
     for (int i = 0; i < nodes; ++i) {
         if (!col[i]) {
@@ -52,45 +67,48 @@ bool isTree(int nodes, vector<int>& vecNodes, int bridges) {
 
 
 int main() {
-    vector<int> vecNodes;
-    string path = "myfile5.txt";
     string msg;
     fstream fs;
-    int nodes = 0, bridges = 0;
 
-    fs.open(path, fstream::in | fstream::out | fstream::app);
-    if (!fs.is_open())
-        cout << "FILE OPEN ERROR!\n";
-    else
-        cout << "File is open!\n";
+    for (int i = 1; i < 6; i++) {
+        string path = "myfile" + to_string(i) + ".txt";
+        fs.open(path, fstream::in | fstream::out | fstream::app);
+        if (!fs.is_open())
+            cout << "FILE OPEN ERROR!\n";
+        else
+            cout << "File is open!\n";
 
-    while (true) {
-        msg = "";
-        if (fs.eof()) break;
-        fs >> msg;
-        int temp = 0;
-        for (size_t j = 0; j < msg.size(); j += 2)
-        {
-            if (msg[j] == '0')
-                graph[nodes][temp] = false;
-            if (msg[j] == '1') {
-                graph[nodes][temp] = true;
-                bridges++;
-                vecNodes.push_back(temp);
+        while (true) {
+            msg = "";
+            if (fs.eof()) break;
+            fs >> msg;
+            cout << msg << endl;
+            int temp = 0;
+            for (size_t j = 0; j < msg.size(); j += 2)
+            {
+                if (msg[j] == '0')
+                    graph[nodes][temp] = false;
+                if (msg[j] == '1') {
+                    graph[nodes][temp] = true;
+                    bridges++;
+                    vecNodes.push_back(temp);
+                }
+                temp++;
             }
-            temp++;
+            nodes++;
         }
-        nodes++;
-    }
-    fs.close();
+        fs.close();
 
-    if (bridges != nodes - 1) {
-        cout << "\nNo tree!\n";
-        return 0;
-    }
+        if (bridges != nodes - 1) {
+            cout << "\nNo tree!\n";
+        }
+        else {
+            if (isTree(nodes, vecNodes, bridges)) cout << "\nIt is tree!\n";
+            else cout << "\nNo tree!\n";
+        }
 
-    if (isTree(nodes, vecNodes, bridges)) cout << "\nIt is tree!\n";
-    else cout << "\nNo tree!\n";
+        graphClear();
+    }
 
     return 0;
 }
